@@ -1,296 +1,229 @@
-﻿#include <iostream>
+#include <iostream>
+
 using namespace std;
 
-const int MAX_N = 10000;
+const int M = 10000;
 
-struct Stats {
-    long long comparisons = 0;
-    long long swaps = 0;
-    long long calls = 0;
-    int maxDepth = 0;
+struct s_t {
+    long long a = 0;
+    long long b = 0;
+    long long c = 0;
+    int d = 0;
 };
 
-void copyArray(const int source[], int destination[], int n) {
-    for (int i = 0; i < n; i++) {
-        destination[i] = source[i];
+void a(const int x[], int y[], int z) {
+    for (int w = 0; w < z; w++) {
+        y[w] = x[w];
     }
 }
 
-void printArray(const int a[], int n) {
-    for (int i = 0; i < n; i++) {
-        cout << a[i] << " ";
-    }
-    cout << endl;
-}
-
-void printSegment(const int a[], int lo, int hi) {
-    for (int i = lo; i <= hi; i++) {
-        cout << a[i] << " ";
+void b(const int x[], int y) {
+    for (int z = 0; z < y; z++) {
+        cout << x[z] << " ";
     }
     cout << endl;
 }
 
-void exchange(int a[], int i, int j, Stats& s) {
-    if (i != j) {
-        int temp = a[i];
-        a[i] = a[j];
-        a[j] = temp;
-        s.swaps++;
+void c(const int x[], int y, int z) {
+    for (int w = y; w <= z; w++) {
+        cout << x[w] << " ";
+    }
+    cout << endl;
+}
+
+void d(int x[], int y, int z, s_t& w) {
+    if (y != z) {
+        int v = x[y];
+        x[y] = x[z];
+        x[z] = v;
+        w.b++;
     }
 }
 
-int partitionLomuto(int a[], int lo, int hi, Stats& s) {
-    int pivot = a[hi];
-    int i = lo;
-
-    for (int j = lo; j < hi; j++) {
-        s.comparisons++;
-
-        if (a[j] <= pivot) {
-            exchange(a, i, j, s);
-            i++;
+int e(int x[], int y, int z, s_t& w) {
+    int v = x[z];
+    int u = y;
+    for (int t = y; t < z; t++) {
+        w.a++;
+        if (x[t] <= v) {
+            d(x, u, t, w);
+            u++;
         }
     }
-
-    exchange(a, i, hi, s);
-
-    return i;
+    d(x, u, z, w);
+    return u;
 }
 
-void quickSortLomuto(int a[], int lo, int hi, Stats& s,
-    int depth = 1, bool trace = false) {
-    while (lo < hi) {
-        s.calls++;
-
-        if (depth > s.maxDepth) {
-            s.maxDepth = depth;
+void f(int x[], int y, int z, s_t& w, int v = 1, bool u = false) {
+    while (y < z) {
+        w.c++;
+        if (v > w.d) {
+            w.d = v;
         }
-
-        int p = partitionLomuto(a, lo, hi, s);
-
-        if (trace) {
-            cout << "Lomuto: depth=" << depth
-                << ", range=[" << lo << "," << hi << "]"
-                << ", pivot=" << a[p]
-                << ", pivotIndex=" << p
-                << ", segment: ";
-
-            printSegment(a, lo, hi);
+        int t = e(x, y, z, w);
+        if (u) {
+            cout << "Lomuto: depth=" << v
+                 << ", range=[" << y << "," << z << "]"
+                 << ", pivot=" << x[t]
+                 << ", pivotIndex=" << t
+                 << ", segment: ";
+            c(x, y, z);
         }
-
-        if (p - lo < hi - p) {
-            quickSortLomuto(a, lo, p - 1, s,
-                depth + 1, trace);
-
-            lo = p + 1;
+        if (t - y < z - t) {
+            f(x, y, t - 1, w, v + 1, u);
+            y = t + 1;
+        } else {
+            f(x, t + 1, z, w, v + 1, u);
+            z = t - 1;
         }
-        else {
-            quickSortLomuto(a, p + 1, hi, s,
-                depth + 1, trace);
-
-            hi = p - 1;
-        }
-
-        depth++;
-
-        if (depth > s.maxDepth) {
-            s.maxDepth = depth;
+        v++;
+        if (v > w.d) {
+            w.d = v;
         }
     }
 }
 
-int partitionHoare(int a[], int lo, int hi, Stats& s) {
-    int pivot = a[lo + (hi - lo) / 2];
-
-    int i = lo - 1;
-    int j = hi + 1;
-
+int g(int x[], int y, int z, s_t& w) {
+    int v = x[y + (z - y) / 2];
+    int u = y - 1;
+    int t = z + 1;
     while (true) {
         do {
-            i++;
-            s.comparisons++;
-        } while (a[i] < pivot);
-
+            u++;
+            w.a++;
+        } while (x[u] < v);
         do {
-            j--;
-            s.comparisons++;
-        } while (a[j] > pivot);
-
-        if (i >= j) {
-            return j;
+            t--;
+            w.a++;
+        } while (x[t] > v);
+        if (u >= t) {
+            return t;
         }
-
-        exchange(a, i, j, s);
+        d(x, u, t, w);
     }
 }
 
-void quickSortHoare(int a[], int lo, int hi, Stats& s,
-    int depth = 1, bool trace = false) {
-    if (lo >= hi) {
+void h(int x[], int y, int z, s_t& w, int v = 1, bool u = false) {
+    if (y >= z) {
         return;
     }
-
-    s.calls++;
-
-    if (depth > s.maxDepth) {
-        s.maxDepth = depth;
+    w.c++;
+    if (v > w.d) {
+        w.d = v;
     }
-
-    int p = partitionHoare(a, lo, hi, s);
-
-    if (trace) {
-        cout << "Hoare: depth=" << depth
-            << ", range=[" << lo << "," << hi << "]"
-            << ", boundary=" << p
-            << ", segment: ";
-
-        printSegment(a, lo, hi);
+    int t = g(x, y, z, w);
+    if (u) {
+        cout << "Hoare: depth=" << v
+             << ", range=[" << y << "," << z << "]"
+             << ", boundary=" << t
+             << ", segment: ";
+        c(x, y, z);
     }
-
-    quickSortHoare(a, lo, p, s, depth + 1, trace);
-    quickSortHoare(a, p + 1, hi, s, depth + 1, trace);
+    h(x, y, t, w, v + 1, u);
+    h(x, t + 1, z, w, v + 1, u);
 }
 
-bool isSorted(const int a[], int n) {
-    for (int i = 1; i < n; i++) {
-        if (a[i - 1] > a[i]) {
+bool i(const int x[], int y) {
+    for (int z = 1; z < y; z++) {
+        if (x[z - 1] > x[z]) {
             return false;
         }
     }
-
     return true;
 }
 
-long long sumArray(const int a[], int n) {
-    long long sum = 0;
-
-    for (int i = 0; i < n; i++) {
-        sum += a[i];
+long long j(const int x[], int y) {
+    long long z = 0;
+    for (int w = 0; w < y; w++) {
+        z += x[w];
     }
-
-    return sum;
+    return z;
 }
 
-long long sumSquares(const int a[], int n) {
-    long long sum = 0;
-
-    for (int i = 0; i < n; i++) {
-        sum += 1LL * a[i] * a[i];
+long long k(const int x[], int y) {
+    long long z = 0;
+    for (int w = 0; w < y; w++) {
+        z += 1LL * x[w] * x[w];
     }
-
-    return sum;
+    return z;
 }
 
-bool contentsPreserved(const int before[],
-    const int after[], int n) {
-    return sumArray(before, n) == sumArray(after, n)
-        && sumSquares(before, n) == sumSquares(after, n);
+bool l(const int x[], const int y[], int z) {
+    return j(x, z) == j(y, z) && k(x, z) == k(y, z);
 }
 
-void sortTest(const int source[], int n, const char* name,
-    bool lomuto, int& passed, int& total) {
-    int a[MAX_N];
-
-    copyArray(source, a, n);
-
-    Stats s;
-
-    if (lomuto) {
-        quickSortLomuto(a, 0, n - 1, s);
+void m(const int x[], int y, const char* z, bool w, int& v, int& u) {
+    int t[M];
+    a(x, t, y);
+    s_t s;
+    if (w) {
+        f(t, 0, y - 1, s);
+    } else {
+        h(t, 0, y - 1, s);
     }
-    else {
-        quickSortHoare(a, 0, n - 1, s);
-    }
-
-    bool ok = isSorted(a, n)
-        && contentsPreserved(source, a, n);
-
-    cout << (lomuto ? "Lomuto" : "Hoare")
-        << " | " << name
-        << " | " << (ok ? "OK" : "ERROR") << endl;
-
-    total++;
-
-    if (ok) {
-        passed++;
+    bool r = i(t, y) && l(x, t, y);
+    cout << (w ? "Lomuto" : "Hoare")
+         << " | " << z
+         << " | " << (r ? "OK" : "ERROR") << endl;
+    u++;
+    if (r) {
+        v++;
     }
 }
 
-void partitionTestLomuto(const int source[], int n,
-    const char* name, int& passed) {
-    int a[MAX_N];
-    copyArray(source, a, n);
-
-    Stats s;
-
-    if (n == 0) {
-        cout << "Lomuto partition | "
-            << name << " | OK" << endl;
-        passed++;
+void n(const int x[], int y, const char* z, int& w) {
+    int v[M];
+    a(x, v, y);
+    s_t s;
+    if (y == 0) {
+        cout << "Lomuto partition | " << z << " | OK" << endl;
+        w++;
         return;
     }
-
-    int p = partitionLomuto(a, 0, n - 1, s);
-
-    bool ok = p >= 0 && p < n;
-
-    for (int i = 0; i < p; i++) {
-        if (a[i] > a[p]) {
-            ok = false;
+    int u = e(v, 0, y - 1, s);
+    bool t = u >= 0 && u < y;
+    for (int r = 0; r < u; r++) {
+        if (v[r] > v[u]) {
+            t = false;
         }
     }
-
-    for (int i = p + 1; i < n; i++) {
-        if (a[i] <= a[p]) {
-            ok = false;
+    for (int r = u + 1; r < y; r++) {
+        if (v[r] <= v[u]) {
+            t = false;
         }
     }
-
-    cout << "Lomuto partition | " << name
-        << " | " << (ok ? "OK" : "ERROR") << endl;
-
-    if (ok) {
-        passed++;
+    cout << "Lomuto partition | " << z << " | " << (t ? "OK" : "ERROR") << endl;
+    if (t) {
+        w++;
     }
 }
 
-void partitionTestHoare(const int source[], int n,
-    const char* name, int& passed) {
-    int a[MAX_N];
-    copyArray(source, a, n);
-
-    Stats s;
-
-    if (n < 2) {
-        cout << "Hoare partition | "
-            << name << " | OK" << endl;
-        passed++;
+void o(const int x[], int y, const char* z, int& w) {
+    int v[M];
+    a(x, v, y);
+    s_t s;
+    if (y < 2) {
+        cout << "Hoare partition | " << z << " | OK" << endl;
+        w++;
         return;
     }
-
-    int p = partitionHoare(a, 0, n - 1, s);
-
-    bool ok = p >= 0 && p < n - 1;
-
-    for (int i = 0; i <= p; i++) {
-        for (int j = p + 1; j < n; j++) {
-            if (a[i] > a[j]) {
-                ok = false;
+    int u = g(v, 0, y - 1, s);
+    bool t = u >= 0 && u < y - 1;
+    for (int r = 0; r <= u; r++) {
+        for (int q = u + 1; q < y; q++) {
+            if (v[r] > v[q]) {
+                t = false;
             }
         }
     }
-
-    cout << "Hoare partition | " << name
-        << " | " << (ok ? "OK" : "ERROR") << endl;
-
-    if (ok) {
-        passed++;
+    cout << "Hoare partition | " << z << " | " << (t ? "OK" : "ERROR") << endl;
+    if (t) {
+        w++;
     }
 }
 
-void tests() {
+void p() {
     cout << "=== AUTOMATED SORT TESTS ===" << endl;
-
     const int a1[] = { 7 };
     const int a2[] = { 1, 2 };
     const int a3[] = { 2, 1 };
@@ -305,17 +238,15 @@ void tests() {
     const int a12[] = { 10, 0, -10, 5 };
     const int a13[] = { 2, 2, 1, 3, 1, 2 };
 
-    const int* arrays[] = {
+    const int* x[] = {
         nullptr, a1, a2, a3, a4, a5, a6,
         a7, a8, a9, a10, a11, a12, a13
     };
-
-    const int sizes[] = {
+    const int y[] = {
         0, 1, 2, 2, 5, 5, 5,
         5, 5, 4, 6, 5, 4, 6
     };
-
-    const char* names[] = {
+    const char* z[] = {
         "empty", "one element", "two sorted",
         "two reversed", "ascending", "descending",
         "mixed", "duplicates", "negative values",
@@ -323,171 +254,130 @@ void tests() {
         "own test 1", "own test 2"
     };
 
-    int passed = 0;
-    int total = 0;
-
-    for (int i = 0; i < 14; i++) {
-        sortTest(arrays[i], sizes[i], names[i],
-            true, passed, total);
-
-        sortTest(arrays[i], sizes[i], names[i],
-            false, passed, total);
+    int w = 0;
+    int v = 0;
+    for (int u = 0; u < 14; u++) {
+        m(x[u], y[u], z[u], true, w, v);
+        m(x[u], y[u], z[u], false, w, v);
     }
-
-    cout << "Sort tests: " << passed
-        << "/" << total << endl;
+    cout << "Sort tests: " << w << "/" << v << endl;
 
     cout << "\n=== PARTITION TESTS ===" << endl;
+    int t = 0;
+    n(a3, 2, "two reversed", t);
+    n(a4, 5, "ascending", t);
+    n(a5, 5, "descending", t);
+    n(a9, 4, "all equal", t);
 
-    int pPassed = 0;
+    o(a3, 2, "two reversed", t);
+    o(a4, 5, "ascending", t);
+    o(a5, 5, "descending", t);
+    o(a9, 4, "all equal", t);
 
-    partitionTestLomuto(a3, 2, "two reversed", pPassed);
-    partitionTestLomuto(a4, 5, "ascending", pPassed);
-    partitionTestLomuto(a5, 5, "descending", pPassed);
-    partitionTestLomuto(a9, 4, "all equal", pPassed);
-
-    partitionTestHoare(a3, 2, "two reversed", pPassed);
-    partitionTestHoare(a4, 5, "ascending", pPassed);
-    partitionTestHoare(a5, 5, "descending", pPassed);
-    partitionTestHoare(a9, 4, "all equal", pPassed);
-
-    cout << "Partition tests: "
-        << pPassed << "/8" << endl;
+    cout << "Partition tests: " << t << "/8" << endl;
 }
 
-void showStats(const char* name, const Stats& s) {
-    cout << name
-        << ": comparisons=" << s.comparisons
-        << ", swaps=" << s.swaps
-        << ", calls=" << s.calls
-        << ", maxDepth=" << s.maxDepth << endl;
+void q(const char* x, const s_t& y) {
+    cout << x
+         << ": comparisons=" << y.a
+         << ", swaps=" << y.b
+         << ", calls=" << y.c
+         << ", maxDepth=" << y.d << endl;
 }
 
-void traceDemo() {
+void r() {
     cout << "\n=== TRACE DEMO ===" << endl;
+    int x[] = { 9, 3, 7, 1, 8, 2, 6, 4 };
+    int y[8];
 
-    int source[] = { 9, 3, 7, 1, 8, 2, 6, 4 };
-    int a[8];
-
-    copyArray(source, a, 8);
-
-    Stats l;
-
+    a(x, y, 8);
+    s_t l1;
     cout << "-- Lomuto --" << endl;
-    quickSortLomuto(a, 0, 7, l, 1, true);
-
+    f(y, 0, 7, l1, 1, true);
     cout << "Sorted: ";
-    printArray(a, 8);
-    showStats("Lomuto", l);
+    b(y, 8);
+    q("Lomuto", l1);
 
-    copyArray(source, a, 8);
-
-    Stats h;
-
+    a(x, y, 8);
+    s_t h1;
     cout << "-- Hoare --" << endl;
-    quickSortHoare(a, 0, 7, h, 1, true);
-
+    h(y, 0, 7, h1, 1, true);
     cout << "Sorted: ";
-    printArray(a, 8);
-    showStats("Hoare", h);
+    b(y, 8);
+    q("Hoare", h1);
 }
 
-void variant18() {
-    cout << "\n=== VARIANT 18 ===" << endl;
-
-    int source[] = {
-        37, 13, 24, 41, 9, 30, 17, 34,
-        11, 21, 38, 8, 28, 15, 23
-    };
-
-    const int n = 15;
-    int a[15];
-
-    Stats l, h;
+void s() {
+    cout << "\n=== VARIANT 5 ===" << endl;
+    int x[] = { 23, 2, 28, 11, 6, 31, 9, 19, 4, 26, 14, 7, 30, 1, 17 };
+    const int y = 15;
+    int z[15];
+    s_t l1, h1;
 
     cout << "Initial: ";
-    printArray(source, n);
+    b(x, y);
 
-    copyArray(source, a, n);
-    quickSortLomuto(a, 0, n - 1, l);
-
+    a(x, z, y);
+    f(z, 0, y - 1, l1);
     cout << "Lomuto sorted: ";
-    printArray(a, n);
-    showStats("Lomuto", l);
+    b(z, y);
+    q("Lomuto", l1);
 
-    copyArray(source, a, n);
-    quickSortHoare(a, 0, n - 1, h);
-
+    a(x, z, y);
+    h(z, 0, y - 1, h1);
     cout << "Hoare sorted: ";
-    printArray(a, n);
-    showStats("Hoare", h);
+    b(z, y);
+    q("Hoare", h1);
 }
 
-void fillData(int a[], int n, int type) {
-    for (int i = 0; i < n; i++) {
-        if (type == 0) {
-            a[i] = i;
-        }
-        else if (type == 1) {
-            a[i] = n - i;
-        }
-        else if (type == 2) {
-            a[i] = (i * 37LL) % n;
-        }
-        else {
-            a[i] = i % 5;
+void t(int x[], int y, int z) {
+    for (int w = 0; w < y; w++) {
+        if (z == 0) {
+            x[w] = w;
+        } else if (z == 1) {
+            x[w] = y - w;
+        } else if (z == 2) {
+            x[w] = (w * 37LL) % y;
+        } else {
+            x[w] = w % 5;
         }
     }
 }
 
-void experiment() {
+void u() {
     cout << "\n=== EXPERIMENT ===" << endl;
+    const int x[] = { 100, 1000, 10000 };
+    const char* y[] = { "ascending", "descending", "mixed", "duplicates" };
+    cout << "n,type,algorithm,comparisons,swaps,calls,maxDepth" << endl;
 
-    const int sizes[] = { 100, 1000, 10000 };
+    for (int z = 0; z < 3; z++) {
+        int w = x[z];
+        int v[M];
+        int q1[M];
+        for (int r1 = 0; r1 < 4; r1++) {
+            t(v, w, r1);
 
-    const char* types[] = {
-        "ascending", "descending",
-        "mixed", "duplicates"
-    };
+            a(v, q1, w);
+            s_t l1;
+            f(q1, 0, w - 1, l1);
+            cout << w << "," << y[r1] << ",Lomuto,"
+                 << l1.a << "," << l1.b << ","
+                 << l1.c << "," << l1.d << endl;
 
-    cout << "n,type,algorithm,comparisons,swaps,calls,maxDepth"
-        << endl;
-
-    for (int si = 0; si < 3; si++) {
-        int n = sizes[si];
-
-        int source[MAX_N];
-        int a[MAX_N];
-
-        for (int type = 0; type < 4; type++) {
-            fillData(source, n, type);
-
-            copyArray(source, a, n);
-            Stats l;
-
-            quickSortLomuto(a, 0, n - 1, l);
-
-            cout << n << "," << types[type] << ",Lomuto,"
-                << l.comparisons << "," << l.swaps << ","
-                << l.calls << "," << l.maxDepth << endl;
-
-            copyArray(source, a, n);
-            Stats h;
-
-            quickSortHoare(a, 0, n - 1, h);
-
-            cout << n << "," << types[type] << ",Hoare,"
-                << h.comparisons << "," << h.swaps << ","
-                << h.calls << "," << h.maxDepth << endl;
+            a(v, q1, w);
+            s_t h1;
+            h(q1, 0, w - 1, h1);
+            cout << w << "," << y[r1] << ",Hoare,"
+                 << h1.a << "," << h1.b << ","
+                 << h1.c << "," << h1.d << endl;
         }
     }
 }
 
 int main() {
-    tests();
-    traceDemo();
-    variant18();
-    experiment();
-
+    p();
+    r();
+    s();
+    u();
     return 0;
 }
